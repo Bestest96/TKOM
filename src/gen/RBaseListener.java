@@ -1,75 +1,99 @@
-// Generated from RFilter.g4 by ANTLR 4.7.1
+package gen;// Generated from R.g4 by ANTLR 4.7.1
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
- * This class provides an empty implementation of {@link RFilterListener},
+ * This class provides an empty implementation of {@link RListener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public class RFilterBaseListener implements RFilterListener {
+public class RBaseListener implements RListener {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStream(RFilter.StreamContext ctx) { }
+	@Override public void enterProg(RParser.ProgContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStream(RFilter.StreamContext ctx) { }
+	@Override public void exitProg(RParser.ProgContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEat(RFilter.EatContext ctx) { }
+	@Override public void enterExpr(RParser.ExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEat(RFilter.EatContext ctx) { }
+	@Override public void exitExpr(RParser.ExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElem(RFilter.ElemContext ctx) { }
+	@Override public void enterExprlist(RParser.ExprlistContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitElem(RFilter.ElemContext ctx) { }
+	@Override public void exitExprlist(RParser.ExprlistContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAtom(RFilter.AtomContext ctx) { }
+	@Override public void enterFormlist(RParser.FormlistContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAtom(RFilter.AtomContext ctx) { }
+	@Override public void exitFormlist(RParser.FormlistContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterOp(RFilter.OpContext ctx) { }
+	@Override public void enterForm(RParser.FormContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitOp(RFilter.OpContext ctx) { }
+	@Override public void exitForm(RParser.FormContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSublist(RParser.SublistContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSublist(RParser.SublistContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSub(RParser.SubContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSub(RParser.SubContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

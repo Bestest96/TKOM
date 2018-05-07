@@ -58,16 +58,16 @@ expr_or_assign
 */
 
 expr returns [IExpression exp]:   expr '[[' sublist ']' ']'  // '[[' follows R's yacc grammar
-    |   expr '[' sublist ']'
+    |   e1=expr '[' s=sublist ']' { $exp = new IndexExpr($e1.exp, $s.args); }
     |   expr ('::'|':::') expr
     |   expr ('$'|'@') expr
     |   <assoc=right> expr '^' expr
     |   ('-'|'+') expr
-    |   expr ':' expr
+    |   e1=expr ':' e2=expr { $exp = new RangeExpr($e1.exp, $e2.exp); }
     |   expr USER_OP expr // anything wrappedin %: '%' .* '%'
-    |   expr ('*'|'/') expr
-    |   expr ('+'|'-') expr
-    |   expr ('>'|'>='|'<'|'<='|'=='|'!=') expr
+    |   e1=expr op=('*'|'/') e2=expr { $exp = new MulDivExpr($e1.exp, $op.text, $e2.exp); }
+    |   e1=expr op=('+'|'-') e2=expr { $exp = new AddSubExpr($e1.exp, $op.text, $e2.exp); }
+    |   e1=expr op=('>'|'>='|'<'|'<='|'=='|'!=') e2=expr { $exp = new CompareExpr($e1.exp, $op.text, $e2.exp); }
     |   '!' expr
     |   expr ('&'|'&&') expr
     |   expr ('|'|'||') expr
@@ -77,21 +77,21 @@ expr returns [IExpression exp]:   expr '[[' sublist ']' ']'  // '[[' follows R's
                                                                    $exp = new AssignmentExpr($e1.exp, $e2.exp);
                                                                else
                                                                    $exp = new AssignmentExpr($e2.exp, $e1.exp);}
-    |   'function' '(' formlist? ')' expr // define function
-    |   expr '(' sublist ')' // call function
-    |   '{' exprlist '}' // compound statement
-    |   'if' '(' expr ')' expr
-    |   'if' '(' expr ')' expr 'else' expr
-    |   'for' '(' ID 'in' expr ')' expr
-    |   'while' '(' expr ')' expr
+    |   'function' '(' f=formlist? ')' e=expr { $exp = new FunctionExpr($f.args, $e.exp); } // define function
+    |   e1=expr '(' sublist ')' { $exp = new CallFunExpr($e1.exp, $sublist.args); } // call function
+    |   '{' exprlist '}' { $exp = new CompoundExpr($exprlist.explist); } // compound statement
+    |   'if' '(' e1=expr ')' e2=expr { $exp = new IfExpr($e1.exp, $e2.exp); }
+    |   'if' '(' e1=expr ')' e2=expr 'else' e3=expr { $exp = new IfElseExpr($e1.exp, $e2.exp, $e3.exp); }
+    |   'for' '(' ID 'in' e1=expr ')' e2=expr { $exp = new ForExpr($ID.text, $e1.exp, $e2.exp); }
+    |   'while' '(' e1=expr ')' e2=expr { $exp = new WhileExpr($e1.exp, $e2.exp); }
     |   'repeat' expr { $exp = new RepeatExpr($expr.exp); }
     |   '?' expr // get help on expr, usually string or ID
-    |   'next'
-    |   'break'
+    |   'next' { $exp = new NextExpr(); }
+    |   'break' { $exp = new BreakExpr(); }
     |   '(' expr ')'
     |   ID { $exp = new IDExpr($ID.text); }
     |   STRING { $exp = new StringExpr($STRING.text); }
-    |   HEX // TO-DO
+    |   HEX
     |   INT { $exp = new IntExpr($INT.int); }
     |   FLOAT { $exp = new FloatExpr(Double.parseDouble($FLOAT.text)); }
     |   COMPLEX
@@ -103,23 +103,23 @@ expr returns [IExpression exp]:   expr '[[' sublist ']' ']'  // '[[' follows R's
     |   'FALSE' { $exp = new BoolExpr(false); }
     ;
 
-exprlist
-    :   expr ((';'|NL) expr?)*
+exprlist returns [List<IExpression> explist = new ArrayList<>()]
+    :   e1=expr { $explist.add($e1.exp); } ((';'|NL) (e2=expr { $explist.add($e2.exp); })?)*
     |
     ;
 
-formlist : form (',' form)* ;
+formlist returns [List<IArgument> args = new ArrayList<>()]: f1=form { $args.add($f1.arg); } (',' f2=form { $args.add($f2.arg); })* ;
 
-form:   ID
-    |   ID '=' expr
+form returns [IArgument arg]:   ID { $arg = new IDArgument($ID.text, null); }
+    |   ID '=' expr { $arg = new IDArgument($ID.text, $expr.exp); }
     |   '...'
     ;
 
-sublist : sub (',' sub)* ;
+sublist returns [List<IArgument> args = new ArrayList<>()] : s1=sub { $args.add($s1.arg); } (',' s2=sub { $args.add($s2.arg); })* ;
 
-sub :   expr
-    |   ID '='
-    |   ID '=' expr
+sub returns [IArgument arg] :   expr { $arg = new ExprArgument($expr.exp); }
+    |   ID '=' { $arg = new IDArgument($ID.text, null); }
+    |   ID '=' expr { $arg = new IDArgument($ID.text, $expr.exp); }
     |   STRING '='
     |   STRING '=' expr
     |   'NULL' '='

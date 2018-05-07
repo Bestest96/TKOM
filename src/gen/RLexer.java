@@ -1,12 +1,9 @@
-// Generated from R.g4 by ANTLR 4.7.1
+package gen;// Generated from R.g4 by ANTLR 4.7.1
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class RLexer extends Lexer {
@@ -102,7 +99,7 @@ public class RLexer extends Lexer {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "R.g4"; }
+	public String getGrammarFileName() { return "gen/R.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

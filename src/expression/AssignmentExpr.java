@@ -15,6 +15,5 @@ public class AssignmentExpr implements IExpression {
         varName.print();
         System.out.print(" = ");
         varValue.print();
-        System.out.println();
     }
 }

@@ -1,4 +1,6 @@
-import expression.IExpression;
+import gen.RFilter;
+import gen.RLexer;
+import gen.RParser;
 import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.*;
 
@@ -37,8 +39,10 @@ public class Main {
         RuleContext tree = parser.prog();
         List<RParser.ExprContext> expr = ((RParser.ProgContext) tree).expr();
         for (RParser.ExprContext exp : expr)
-            if (exp.exp != null)
+            if (exp.exp != null) {
                 exp.exp.print();
+                System.out.println();
+            }
         //tree.save(parser, "/tmp/R.ps"); // Generate postscript
         System.out.println(tree.toStringTree(parser));
         JFrame frame = new JFrame("Antlr AST");
