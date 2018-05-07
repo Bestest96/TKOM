@@ -91,7 +91,7 @@ expr returns [IExpression exp]:   expr '[[' sublist ']' ']'  // '[[' follows R's
     |   '(' expr ')'
     |   ID { $exp = new IDExpr($ID.text); }
     |   STRING { $exp = new StringExpr($STRING.text); }
-    |   HEX
+    |   HEX { $exp = new HexExpr($HEX.text); }
     |   INT { $exp = new IntExpr($INT.int); }
     |   FLOAT { $exp = new FloatExpr(Double.parseDouble($FLOAT.text)); }
     |   COMPLEX
@@ -188,7 +188,7 @@ fragment LETTER  : [a-zA-Z] ;
 
 USER_OP :   '%' .*? '%' ;
 
-COMMENT :   '#' .*? '\r'? '\n' -> type(NL) ;
+COMMENT :   '#' .*? {  } '\r'? '\n' -> type(NL) ;
 
 // Match both UNIX and Windows newlines
 NL      :   '\r'? '\n' ;
