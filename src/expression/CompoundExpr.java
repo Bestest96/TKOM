@@ -1,9 +1,8 @@
 package expression;
 
 import context.ContextHolder;
+import exceptions.TranslationException;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 public class CompoundExpr implements IExpression {
@@ -26,7 +25,7 @@ public class CompoundExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
         StringBuilder sb = ContextHolder.addIndents();
         sb.append("{\n");
         ContextHolder.changeContext();

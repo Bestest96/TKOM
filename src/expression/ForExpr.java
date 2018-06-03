@@ -1,6 +1,8 @@
 package expression;
 
 import context.ContextHolder;
+import context.Type;
+import exceptions.TranslationException;
 
 public class ForExpr implements IExpression {
 
@@ -23,20 +25,14 @@ public class ForExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
-        if (!(values instanceof RangeExpr) && !(values instanceof CallFunExpr) && !(values instanceof IDExpr))
-            throw new RuntimeException();
+    public String translate() throws TranslationException {
+        if (values.type() != Type.VECTOR && values.type() != Type.INTEGER && values.type() != Type.DOUBLE)
+            throw new TranslationException("Wrong for iteration range!");
+        StringBuilder sb = new StringBuilder();
         if (values instanceof RangeExpr) {
             RangeExpr rangeExpr = (RangeExpr) values;
             IExpression e1 = rangeExpr.getE1();
             IExpression e2 = rangeExpr.getE2();
-            if (!(e1 instanceof IntExpr) && !(e1 instanceof HexExpr) && !(e1 instanceof FloatExpr)
-                    && !(e1 instanceof IDExpr))
-                throw new RuntimeException();
-
-
-
-            StringBuilder sb = new StringBuilder();
             sb.append(new AssignmentExpr(new IDExpr(id), new IntExpr(Integer.parseInt(e1.translate()))).translate()).append("\n");
             sb.append(ContextHolder.addIndents().toString());
             sb.append("for (").append(id).append(" = ").append(e1.translate());
@@ -50,8 +46,9 @@ public class ForExpr implements IExpression {
             }
             else
                 sb.append(expr.translate());
-            return sb.toString();
         }
-        return null;
+        else
+            throw new TranslationException("Unsupported for collection!");
+        return sb.toString();
     }
 }

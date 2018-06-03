@@ -4,8 +4,7 @@ import context.ContextHolder;
 
 public class BreakExpr implements IExpression {
 
-    public BreakExpr() {
-    }
+    public BreakExpr() {}
 
     @Override
     public void print() {

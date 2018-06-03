@@ -1,7 +1,7 @@
 package expression;
 
-import context.ContextHolder;
 import context.Type;
+import exceptions.TranslationException;
 
 public class MulDivExpr implements IExpression {
 
@@ -23,15 +23,24 @@ public class MulDivExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
-        StringBuilder sb = ContextHolder.addIndents();
-        sb.append(e1.translate()).append(" ").append(op).append(" ").append(e2.translate());
-        return sb.toString();
+    public String translate() throws TranslationException {
+        if (type() == null)
+            throw new TranslationException("Wrong multiply/division data types!");
+        else if ((e1.type() == Type.MATRIX || e1.type() == Type.VECTOR) && (e2.type() == Type.MATRIX || e2.type() == Type.VECTOR) && op.equals("*"))
+            op = "%";
+        return e1.translate() + " " + op + " " + e2.translate();
     }
 
     @Override
     public Type type() {
-        return e1.type() == e2.type() ? e1.type() : null;
+        if (e1.type() == e2.type())
+            return e1.type();
+        else if ((e1.type() == Type.DOUBLE || e1.type() == Type.INTEGER) && (e2.type() == Type.MATRIX || e2.type() == Type.VECTOR) && op.equals("*"))
+            return e2.type();
+        else if ((e2.type() == Type.DOUBLE || e2.type() == Type.INTEGER) && (e1.type() == Type.MATRIX || e1.type() == Type.VECTOR))
+            return e1.type();
+        else
+            return null;
     }
 
     public IExpression getE1() {

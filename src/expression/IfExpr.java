@@ -1,6 +1,8 @@
 package expression;
 
 import context.ContextHolder;
+import context.Type;
+import exceptions.TranslationException;
 
 public class IfExpr implements IExpression {
 
@@ -22,7 +24,9 @@ public class IfExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
+        if (condition.type() != Type.BOOLEAN)
+            throw new TranslationException("Wrong if expression type!");
         StringBuilder sb = ContextHolder.addIndents();
         sb.append("if (").append(condition.translate()).append(")");
         sb.append("\n");

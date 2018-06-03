@@ -1,6 +1,7 @@
 package expression;
 
 import context.Type;
+import exceptions.TranslationException;
 
 public interface IExpression {
 
@@ -8,7 +9,7 @@ public interface IExpression {
         System.out.println("TODO");
     }
 
-    default String translate() {
+    default String translate() throws TranslationException {
         System.out.println("TODO");
         return "TODO";
     }

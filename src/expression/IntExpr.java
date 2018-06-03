@@ -1,6 +1,5 @@
 package expression;
 
-import context.ContextHolder;
 import context.Type;
 
 public class IntExpr implements IExpression {

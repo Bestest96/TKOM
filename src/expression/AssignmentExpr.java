@@ -3,6 +3,7 @@ package expression;
 import context.ContextHolder;
 import context.Type;
 import context.VariableData;
+import exceptions.TranslationException;
 import utilities.RandomString;
 
 import java.util.Map;
@@ -29,67 +30,16 @@ public class AssignmentExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
         String varID = varName.translate();
         String value = varValue.translate();
         Map<String, VariableData> symbols = ContextHolder.getSymbolsTable();
         Map<String, String> mapper = ContextHolder.getLocalSymbolsMapper();
         Set<String> localVars = ContextHolder.getActualContextVariables();
         StringBuilder sb = ContextHolder.addIndents();
-        Type type = null;
-        if (value.startsWith("arma::vec") || value.startsWith("arma::regspace"))
-            type = Type.VECTOR;
-        else if (value.startsWith("arma::mat"))
-            type = Type.MATRIX;
-        else if (value.endsWith("get_n_elem()"))
-            type = Type.INTEGER;
-        else if (varValue instanceof IDExpr) {
-            VariableData valueData = symbols.getOrDefault(value, null);
-            if (valueData != null)
-                type = valueData.getType();
-            else
-                throw new RuntimeException();
-        }
-        else if (varValue instanceof CallFunExpr) {
-            CallFunExpr expr = (CallFunExpr) varValue;
-            if (!(expr.getFunction() instanceof IDExpr))
-                throw new RuntimeException();
-            IDExpr funId = (IDExpr) expr.getFunction();
-            String same = funId.getId();
-            if (funId.equals("length"))
-                type = Type.INTEGER;
-        }
-        else if (varValue instanceof AddSubExpr) {
-            AddSubExpr expr = (AddSubExpr) varValue;
-            IExpression value1 = expr.getE1();
-            IExpression value2 = expr.getE2();
-            String op = expr.getOp();
-            Type type1 = null;
-            Type type2 = null;
-            if (value1 instanceof IDExpr) {
-                IDExpr iDExpr = (IDExpr) value1;
-                VariableData vData = symbols.getOrDefault(iDExpr.getId(), null);
-                if (vData != null)
-                    type1 = vData.getType();
-            }
-            if (value2 instanceof IDExpr) {
-                IDExpr iDExpr = (IDExpr) value2;
-                VariableData vData = symbols.getOrDefault(iDExpr.getId(), null);
-                if (vData != null)
-                    type2 = vData.getType();
-            }
-            if (type1 != type2 || type1 == null)
-                throw new RuntimeException();
-            else {
-                type = type1;
-                value = value1.translate() + " " + op + " " + value2.translate();
-            }
-
-        }
+        Type type = type();
         if (type == null)
-            type = getType(value);
-        if (type == null)
-            throw new RuntimeException();
+            throw new TranslationException("Unrecognized data type!");
         while (mapper.containsKey(varID))
             varID = mapper.get(varID);
         if (symbols.containsKey(varID)) {
@@ -102,14 +52,14 @@ public class AssignmentExpr implements IExpression {
                 else {
                     data.setValue(value);
                     data.setType(type);
-                    data.setGloballyUsed(ContextHolder.getIsGlobalContext());
+                    data.setGloballyUsed(data.getGloballyUsed() ? true : ContextHolder.getIsGlobalContext());
                     saveData(varID, data, symbols, localVars);
                 }
             }
             else {
                 data.setValue(value);
                 data.setType(type);
-                data.setGloballyUsed(ContextHolder.getIsGlobalContext());
+                data.setGloballyUsed(data.getGloballyUsed() ? true : ContextHolder.getIsGlobalContext());
                 saveData(varID, data, symbols, localVars);
                 sb.append("auto ");
             }
@@ -135,7 +85,7 @@ public class AssignmentExpr implements IExpression {
             newName = getNewName(varID);
             if (!symbols.containsKey(newName)) {
                 VariableData newData = symbols.getOrDefault(varID, new VariableData());
-                newData.setGloballyUsed(ContextHolder.getIsGlobalContext());
+                newData.setGloballyUsed(newData.getGloballyUsed() ? true : ContextHolder.getIsGlobalContext());
                 newData.setType(type);
                 newData.setValue(value);
                 symbols.put(newName, newData);
@@ -152,19 +102,16 @@ public class AssignmentExpr implements IExpression {
         return varValue.type();
     }
 
-    public IExpression getVarName() {
+    IExpression getVarName() {
         return varName;
     }
 
-    public void setVarName(IExpression varName) {
-        this.varName = varName;
-    }
 
-    public IExpression getVarValue() {
+    IExpression getVarValue() {
         return varValue;
     }
 
-    public void setVarValue(IExpression varValue) {
+    void setVarValue(IExpression varValue) {
         this.varValue = varValue;
     }
 
@@ -177,20 +124,5 @@ public class AssignmentExpr implements IExpression {
     private void saveData(String varID, VariableData data, Map<String, VariableData> symbols, Set<String> localVars) {
         symbols.put(varID, data);
         localVars.add(varID);
-    }
-
-    private Type getType(String value) {
-        if (varValue instanceof IntExpr || varValue instanceof HexExpr)
-            return Type.INTEGER;
-        else if (varValue instanceof FloatExpr)
-            return Type.DOUBLE;
-        else if (varValue instanceof StringExpr)
-            return Type.STRING;
-        else if (value.equals(VECTOR))
-            return Type.VECTOR;
-        else if (value.equals(MATRIX))
-            return Type.MATRIX;
-        else
-            return null;
     }
 }

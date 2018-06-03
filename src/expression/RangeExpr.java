@@ -1,6 +1,7 @@
 package expression;
 
 import context.Type;
+import exceptions.TranslationException;
 
 public class RangeExpr implements IExpression {
 
@@ -20,20 +21,25 @@ public class RangeExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
+        if (type() == null)
+            throw new TranslationException("Unrecognized range data type!");
         return e1.translate() + ";" + e2.translate();
     }
 
-    public IExpression getE1() {
+    IExpression getE1() {
         return e1;
     }
 
-    public IExpression getE2() {
+    IExpression getE2() {
         return e2;
     }
 
     @Override
     public Type type() {
-        return Type.VECTOR;
+        if ((e1.type().equals(Type.INTEGER) || e1.type().equals(Type.DOUBLE)) && (e2.type().equals(Type.INTEGER) || e2.type().equals(Type.DOUBLE)))
+            return Type.VECTOR;
+        else
+            return null;
     }
 }

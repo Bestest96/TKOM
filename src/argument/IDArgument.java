@@ -1,5 +1,6 @@
 package argument;
 
+import context.Type;
 import expression.IExpression;
 
 public class IDArgument implements IArgument {
@@ -31,7 +32,8 @@ public class IDArgument implements IArgument {
         return id;
     }
 
-    public IExpression getValue() {
-        return value;
+    @Override
+    public Type type() {
+        return value.type();
     }
 }

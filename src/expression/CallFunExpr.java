@@ -4,6 +4,7 @@ import argument.ExprArgument;
 import argument.IArgument;
 import context.ContextHolder;
 import context.Type;
+import exceptions.TranslationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,8 @@ public class CallFunExpr implements IExpression {
 
     private IExpression function;
     private List<IArgument> args;
+
+    private final String BREAK = "break;\n";
 
     public CallFunExpr(IExpression function, List<IArgument> args) {
         this.function = function;
@@ -31,7 +34,7 @@ public class CallFunExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
         String nameR;
         if (function instanceof AssignmentExpr)
             nameR = ((AssignmentExpr) function).getVarValue().translate();
@@ -53,16 +56,74 @@ public class CallFunExpr implements IExpression {
                 toRet.append("})");
                 return returnDataType(toRet);
             }
+            case "switch": {
+                toRet = ContextHolder.addIndents();
+                int argsSize = args.size();
+                if (argsSize < 2 && !(args.get(0) instanceof ExprArgument))
+                    throw new TranslationException("Wrong args count for switch!");
+                IExpression switchArg = ((ExprArgument) args.get(0)).getValue();
+                if (switchArg instanceof IDExpr) {
+                    String mappedName = ContextHolder.getLocalSymbolsMapper().get(((IDExpr) switchArg).getId());
+                    if (mappedName != null)
+                        switchArg = new IDExpr(mappedName);
+                }
+                if (switchArg.type() != Type.STRING && switchArg.type() != Type.INTEGER)
+                    throw new TranslationException("Wrong switch condition!");
+                toRet.append("switch (");
+                if (switchArg.type() == Type.STRING)
+                    toRet.append("str2int(").append(switchArg.translate()).append("))\n").append(ContextHolder.addIndents().toString()).append("{\n");
+                else
+                    toRet.append(switchArg.translate()).append(")\n").append(ContextHolder.addIndents().toString()).append("{\n");
+                ContextHolder.changeContext();
+                for (int i = 1; i < argsSize - 1; ++i) {
+                    toRet.append(ContextHolder.addIndents().toString()).append("case ");
+                    if (!(args.get(i) instanceof ExprArgument))
+                        throw new TranslationException("Wrong switch argument!");
+                    IExpression caseArg = ((ExprArgument) args.get(i)).getValue();
+                    if (caseArg instanceof AssignmentExpr) {
+                        IExpression caseValue = ((AssignmentExpr) caseArg).getVarName();
+                        IExpression caseExpr = ((AssignmentExpr) caseArg).getVarValue();
+                        if (switchArg.type() == Type.STRING)
+                            toRet.append("str2int(").append(caseValue.translate()).append(")");
+                        else
+                            toRet.append(caseValue.translate());
+                        toRet.append(":\n");
+                        toRet.append(returnCaseExpr(caseExpr));
+                    }
+                    else if (caseArg instanceof CompoundExpr) {
+                        toRet.append(i).append(":\n");
+                        toRet.append(caseArg.translate()).append("\n").append(ContextHolder.addIndents().toString());
+                        toRet.append("\t").append(BREAK);
+                    }
+                }
+                toRet.append(ContextHolder.addIndents().toString()).append("default:\n");
+                if (!(args.get(argsSize - 1) instanceof ExprArgument))
+                    throw new TranslationException("Wrong default argument!");
+                IExpression caseArg = ((ExprArgument) args.get(argsSize - 1)).getValue();
+                if (caseArg instanceof AssignmentExpr) {
+                    IExpression caseValue = ((AssignmentExpr) caseArg).getVarName();
+                    IExpression caseExpr = ((AssignmentExpr) caseArg).getVarValue();
+                    toRet.append(caseValue.translate()).append(":\n");
+                    toRet.append(returnCaseExpr(caseExpr));
+                }
+                else if (caseArg instanceof CompoundExpr) {
+                    toRet.append(caseArg.translate()).append("\n").append(ContextHolder.addIndents().toString());
+                    toRet.append("\t").append(BREAK);
+                }
+                ContextHolder.restoreContext();
+                toRet.append(ContextHolder.addIndents().toString()).append("}");
+                break;
+            }
             case "tryCatch": {
                 toRet = ContextHolder.addIndents();
                 int argsSize = args.size();
                 if (argsSize != 2 || (!(args.get(0) instanceof ExprArgument) || !(args.get(1) instanceof ExprArgument)))
-                    throw new RuntimeException();
+                    throw new TranslationException("Wrong try/catch argument count!");
                 IExpression tryExpr = ((ExprArgument) args.get(0)).getValue();
                 IExpression catchExpr = ((ExprArgument) args.get(1)).getValue();
-                toRet.append("try");
+                toRet.append("try\n");
                 if (!(tryExpr instanceof CompoundExpr)) {
-                    toRet.append(" {\n");
+                    toRet.append(ContextHolder.addIndents().toString()).append("{\n");
                     ContextHolder.changeContext();
                     toRet.append(tryExpr.translate());
                     toRet.append("\n");
@@ -73,10 +134,10 @@ public class CallFunExpr implements IExpression {
                     toRet.append(tryExpr.translate()).append("\n");
                 toRet.append(ContextHolder.addIndents().toString()).append("catch ");
                 if (!(catchExpr instanceof AssignmentExpr))
-                    throw new RuntimeException();
+                    throw new TranslationException("Wrong catch expression argument!");
                 AssignmentExpr expr = (AssignmentExpr) catchExpr;
                 if (!expr.getVarName().translate().equals("error"))
-                    throw new RuntimeException();
+                    throw new TranslationException("Wrong catch clause name!");
                 toRet.append(expr.getVarValue().translate());
                 break;
             }
@@ -90,7 +151,7 @@ public class CallFunExpr implements IExpression {
             }
             case "length": {
                 if (args.size() != 1)
-                    throw new RuntimeException();
+                    throw new TranslationException("Wrong arguments count for length!");
                 toRet.append(args.get(0).translate()).append(".get_n_elem()");
                 return returnDataType(toRet);
             }
@@ -99,7 +160,7 @@ public class CallFunExpr implements IExpression {
                 String delta = null;
                 int argsSize = args.size();
                 if (argsSize < 2 || argsSize > 3)
-                    throw new RuntimeException();
+                    throw new TranslationException("Wrong arguments count for seq!");
                 toRet.append(args.get(0).translate()).append(", ");
                 if (argsSize == 2)
                     toRet.append(args.get(argsSize - 1).translate()).append(")");
@@ -108,11 +169,11 @@ public class CallFunExpr implements IExpression {
                     if (args.get(2) instanceof ExprArgument)
                         exprArg = (ExprArgument) args.get(2);
                     else
-                        throw new RuntimeException();
+                        throw new TranslationException("Wrong delta argument!");
                     String argumentId = ((AssignmentExpr) exprArg.getValue()).getVarName().translate();
                     String argumentValue = ((AssignmentExpr) exprArg.getValue()).getVarValue().translate();
                     if (!argumentId.equals("by"))
-                        throw new RuntimeException();
+                        throw new TranslationException("Wrong delta argument name!");
                     delta = argumentValue;
                     toRet.append(delta).append(", ");
                     toRet.append(args.get(argsSize - 2).translate()).append(")");
@@ -124,9 +185,9 @@ public class CallFunExpr implements IExpression {
                 toRet.append("(std::vector<double>{");
                 int argsSize = args.size();
                 if (argsSize > 0 && !(args.get(0) instanceof ExprArgument))
-                    throw new RuntimeException();
+                    throw new TranslationException("Wrong matrix arguments!");
                 else if (argsSize != 3 && argsSize != 4)
-                    throw new RuntimeException();
+                    throw new TranslationException("Wrong matrix arguments count");
                 List<String> matrixElements = ((CallFunExpr) ((ExprArgument) args.get(0)).getValue()).getArgsInArray();
                 Boolean byRow = false;
                 String numRows = "1";
@@ -140,39 +201,39 @@ public class CallFunExpr implements IExpression {
                     if (arg instanceof ExprArgument)
                         exprArg = (ExprArgument) arg;
                     else
-                        throw new RuntimeException();
+                        throw new TranslationException("Wrong matrix argument type!");
                     String argumentId = ((AssignmentExpr) exprArg.getValue()).getVarName().translate();
                     String argumentValue = ((AssignmentExpr) exprArg.getValue()).getVarValue().translate();
                     switch (argumentId) {
                         case "nrow": {
                             if (nrowUsed)
-                                throw new RuntimeException();
+                                throw new TranslationException("nrow already used as Matrix argument!");
                             else if (Integer.parseInt(argumentValue) < 1)
-                                throw new RuntimeException();
+                                throw new TranslationException("Wrong nrow number!");
                             numRows = argumentValue;
                             nrowUsed = true;
                             break;
                         }
                         case "ncol": {
                             if (ncolUsed)
-                                throw new RuntimeException();
+                                throw new TranslationException("ncol already used as matrix argument!");
                             else if (Integer.parseInt(argumentValue) < 1)
-                                throw new RuntimeException();
+                                throw new TranslationException("Wrong ncol number!");
                             numCols = argumentValue;
                             ncolUsed = true;
                             break;
                         }
                         case "byrow": {
                             if (byrowUsed)
-                                throw new RuntimeException();
+                                throw new TranslationException("byrow already used as matrix argument!");
                             else if (!argumentValue.equals("true") && !argumentValue.equals("false"))
-                                throw new RuntimeException();
+                                throw new TranslationException("Wrong byrow value!");
                             byRow = Boolean.parseBoolean(argumentValue);
                             byrowUsed = true;
                             break;
                         }
                         default:
-                            throw new RuntimeException();
+                            throw new TranslationException("Wrong matrix argument!");
                     }
                 }
                 if (!byRow) {
@@ -205,14 +266,29 @@ public class CallFunExpr implements IExpression {
         return toRet.toString();
     }
 
-    private List<String> getArgsInArray() {
+    private String returnCaseExpr(IExpression caseExpr) throws TranslationException {
+        StringBuilder toRet = new StringBuilder();
+        if (!(caseExpr instanceof CompoundExpr)) {
+            ContextHolder.changeContext();
+            toRet.append(caseExpr.translate());
+            toRet.append("\n").append(ContextHolder.addIndents().toString()).append(BREAK);
+            ContextHolder.restoreContext();
+        }
+        else {
+            toRet.append(caseExpr.translate()).append("\n").append(ContextHolder.addIndents().toString());
+            toRet.append("\t").append(BREAK);
+        }
+        return toRet.toString();
+    }
+
+    private List<String> getArgsInArray() throws TranslationException {
         List<String> arguments = new ArrayList<>();
         for (IArgument arg : args)
             arguments.add(arg.translate());
         return arguments;
     }
 
-    private String returnDataType(StringBuilder sb) {
+    private String returnDataType(StringBuilder sb) throws TranslationException {
         if (function instanceof AssignmentExpr) {
             AssignmentExpr expr = (AssignmentExpr) function;
             expr.setVarValue(new IDExpr(sb.toString()));

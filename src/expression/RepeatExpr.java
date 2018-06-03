@@ -1,6 +1,7 @@
 package expression;
 
 import context.ContextHolder;
+import exceptions.TranslationException;
 
 public class RepeatExpr implements IExpression {
 
@@ -17,7 +18,7 @@ public class RepeatExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
         StringBuilder sb = ContextHolder.addIndents();
         sb.append("do").append("\n");
         if (!(expr instanceof CompoundExpr)) {

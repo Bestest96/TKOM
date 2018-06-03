@@ -1,7 +1,7 @@
 package expression;
 
-import context.ContextHolder;
 import context.Type;
+import exceptions.TranslationException;
 
 public class AddSubExpr implements IExpression {
 
@@ -23,10 +23,10 @@ public class AddSubExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
-        StringBuilder sb = ContextHolder.addIndents();
-        sb.append(e1.translate()).append(" ").append(op).append(" ").append(e2.translate());
-        return sb.toString();
+    public String translate() throws TranslationException {
+        if (type() == null)
+            throw new TranslationException("Incompatible addition/subtraction types!");
+        return e1.translate() + " " + op + " " + e2.translate();
     }
 
     @Override
@@ -34,15 +34,8 @@ public class AddSubExpr implements IExpression {
         return e1.type() == e2.type() ? e1.type() : null;
     }
 
-    public IExpression getE1() {
-        return e1;
-    }
-
     public String getOp() {
         return op;
     }
 
-    public IExpression getE2() {
-        return e2;
-    }
 }

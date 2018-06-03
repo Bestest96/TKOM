@@ -2,6 +2,7 @@ package expression;
 
 import argument.IArgument;
 import context.ContextHolder;
+import exceptions.TranslationException;
 
 import java.util.List;
 
@@ -29,12 +30,12 @@ public class FunctionExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
         StringBuilder sb = new StringBuilder();
         sb.append("(std::exception& ");
         if (args.size() > 1)
-            throw new RuntimeException();
-        sb.append(args.get(0).translate()).append(")");
+            throw new TranslationException("Too much arguments for exception!");
+        sb.append(args.get(0).translate()).append(")\n");
         if (!(expr instanceof CompoundExpr)) {
             ContextHolder.changeContext();
             sb.append(expr.translate());

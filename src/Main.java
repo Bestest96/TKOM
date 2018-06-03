@@ -32,12 +32,8 @@ public class Main {
         RFilter filter = new RFilter(tokens);
         filter.stream();
         tokens.seek(0);
-//      Print tokens AFTER filtering
-//		for (Object tok : tokens.getTokens()) {
-//			System.out.println(tok);
-//		}
         RParser parser = new RParser(tokens);
-        // parser.setBuildParseTree(true);
+        parser.setBuildParseTree(true);
         RuleContext tree = parser.prog();
         List<RParser.ExprContext> expr = ((RParser.ProgContext) tree).expr();
         List<IExpression> iexpr = expr.stream().map(e -> e.exp).collect(Collectors.toList());
@@ -46,15 +42,13 @@ public class Main {
         for (IExpression e : iexpr) {
             printer.println(e.translate());
             printer.flush();
-            e.print();
-            System.out.println();
         }
         ContextHolder.printEnding();
         generateParseTree(parser, tree);
     }
 
-    public static void generateParseTree(RParser parser, RuleContext tree) {
-        System.out.println(tree.toStringTree(parser));
+    private static void generateParseTree(RParser parser, RuleContext tree) {
+        // System.out.println(tree.toStringTree(parser));
         JFrame frame = new JFrame("Antlr AST");
         JPanel panel = new JPanel();
         TreeViewer viewr = new TreeViewer(Arrays.asList(

@@ -1,5 +1,7 @@
 package argument;
 
+import context.Type;
+import exceptions.TranslationException;
 import expression.IExpression;
 
 public class ExprArgument implements IArgument {
@@ -16,11 +18,16 @@ public class ExprArgument implements IArgument {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
         return value.translate();
     }
 
     public IExpression getValue() {
         return value;
+    }
+
+    @Override
+    public Type type() {
+        return value.type();
     }
 }

@@ -2,7 +2,8 @@ package expression;
 
 import argument.ExprArgument;
 import argument.IArgument;
-import context.ContextHolder;
+import context.Type;
+import exceptions.TranslationException;
 
 import java.util.List;
 
@@ -26,15 +27,17 @@ public class IndexExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
         StringBuilder sb = new StringBuilder();
         sb.append(expr.translate()).append("(");
         for (IArgument arg : args) {
+            if (arg.type() != Type.INTEGER && arg.type() != Type.DOUBLE)
+                throw new TranslationException("Wrong index type!");
             if (!(arg instanceof ExprArgument))
-                throw new RuntimeException();
+                throw new TranslationException("Wrong argument!");
             ExprArgument argument = (ExprArgument) arg;
             if (!(argument.getValue() instanceof IDExpr) && !(argument.getValue() instanceof IntExpr))
-                throw new RuntimeException();
+                throw new TranslationException("Wrong argument type!");
             sb.append(argument.getValue().translate()).append(" - 1, ");
         }
         sb.delete(sb.length() - 2, sb.length());

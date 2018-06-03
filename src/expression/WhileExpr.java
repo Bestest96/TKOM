@@ -1,6 +1,8 @@
 package expression;
 
 import context.ContextHolder;
+import context.Type;
+import exceptions.TranslationException;
 
 public class WhileExpr implements IExpression {
 
@@ -21,7 +23,9 @@ public class WhileExpr implements IExpression {
     }
 
     @Override
-    public String translate() {
+    public String translate() throws TranslationException {
+        if (condition.type() != Type.BOOLEAN)
+            throw new TranslationException("Wrong while condition type!");
         StringBuilder sb = ContextHolder.addIndents();
         sb.append("while (").append(condition.translate()).append(")");
         sb.append("\n");

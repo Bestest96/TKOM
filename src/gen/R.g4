@@ -62,15 +62,15 @@ expr returns [IExpression exp]:   expr '[[' sublist ']' ']'  // '[[' follows R's
     |   expr ('::'|':::') expr
     |   expr ('$'|'@') expr
     |   <assoc=right> expr '^' expr
-    |   ('-'|'+') expr
+    |   op=('-'|'+') e1=expr { $exp = new PlusMinusExpr($op.text, $e1.exp); }
     |   e1=expr ':' e2=expr { $exp = new RangeExpr($e1.exp, $e2.exp); }
-    |   expr USER_OP expr // anything wrappedin %: '%' .* '%'
+    |   e1=expr op=USER_OP e2=expr { $exp = new UserOpExpr($e1.exp, $op.text, $e2.exp); } // anything wrappedin %: '%' .* '%'
     |   e1=expr op=('*'|'/') e2=expr { $exp = new MulDivExpr($e1.exp, $op.text, $e2.exp); }
     |   e1=expr op=('+'|'-') e2=expr { $exp = new AddSubExpr($e1.exp, $op.text, $e2.exp); }
     |   e1=expr op=('>'|'>='|'<'|'<='|'=='|'!=') e2=expr { $exp = new CompareExpr($e1.exp, $op.text, $e2.exp); }
-    |   '!' expr
-    |   expr ('&'|'&&') expr
-    |   expr ('|'|'||') expr
+    |   '!' expr { $exp = new NegationExpr($expr.exp); }
+    |   e1=expr op=('&'|'&&') e2=expr { $exp = new LogicalExpr($e1.exp, $op.text, $e2.exp); }
+    |   e1=expr op=('|'|'||') e2=expr { $exp = new LogicalExpr($e1.exp, $op.text, $e2.exp); }
     |   '~' expr
     |   expr '~' expr
     |   e1=expr ass=('<-'|'<<-'|'='|'->'|'->>'|':=') e2=expr { if ($ass.text.equals("<-") || $ass.text.equals("<<-") || $ass.text.equals("="))
@@ -85,10 +85,10 @@ expr returns [IExpression exp]:   expr '[[' sublist ']' ']'  // '[[' follows R's
     |   'for' '(' ID 'in' e1=expr ')' e2=expr { $exp = new ForExpr($ID.text, $e1.exp, $e2.exp); }
     |   'while' '(' e1=expr ')' e2=expr { $exp = new WhileExpr($e1.exp, $e2.exp); }
     |   'repeat' expr { $exp = new RepeatExpr($expr.exp); }
-    |   '?' expr // get help on expr, usually string or ID
+    |   '?' expr
     |   'next' { $exp = new NextExpr(); }
     |   'break' { $exp = new BreakExpr(); }
-    |   '(' expr ')'
+    |   '(' expr ')' { $exp = new BracedExpr($expr.exp); }
     |   ID { $exp = new IDExpr($ID.text); }
     |   STRING { $exp = new StringExpr($STRING.text); }
     |   HEX { $exp = new HexExpr($HEX.text); }
