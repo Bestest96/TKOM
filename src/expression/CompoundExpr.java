@@ -1,5 +1,9 @@
 package expression;
 
+import context.ContextHolder;
+
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class CompoundExpr implements IExpression {
@@ -19,5 +23,17 @@ public class CompoundExpr implements IExpression {
             System.out.println();
         }
         System.out.println("}");
+    }
+
+    @Override
+    public String translate() {
+        StringBuilder sb = ContextHolder.addIndents();
+        sb.append("{\n");
+        ContextHolder.changeContext();
+        for (IExpression expr: exprlist)
+            sb.append(expr.translate()).append("\n");
+        ContextHolder.restoreContext();
+        sb.append(ContextHolder.addIndents().toString()).append("}");
+        return sb.toString();
     }
 }

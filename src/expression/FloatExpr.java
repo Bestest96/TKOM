@@ -1,5 +1,7 @@
 package expression;
 
+import context.Type;
+
 public class FloatExpr implements IExpression {
 
     private double value;
@@ -14,7 +16,12 @@ public class FloatExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
+    public String translate() {
+        return String.valueOf(value);
+    }
 
+    @Override
+    public Type type() {
+        return Type.DOUBLE;
     }
 }

@@ -1,5 +1,8 @@
 package expression;
 
+import context.ContextHolder;
+import context.Type;
+
 public class IntExpr implements IExpression {
 
     private int value;
@@ -14,7 +17,12 @@ public class IntExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
+    public String translate() {
+        return String.valueOf(value);
+    }
 
+    @Override
+    public Type type() {
+        return Type.INTEGER;
     }
 }

@@ -14,4 +14,13 @@ public class ExprArgument implements IArgument {
     public void print() {
         value.print();
     }
+
+    @Override
+    public String translate() {
+        return value.translate();
+    }
+
+    public IExpression getValue() {
+        return value;
+    }
 }

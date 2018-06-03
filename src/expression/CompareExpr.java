@@ -1,5 +1,7 @@
 package expression;
 
+import context.Type;
+
 public class CompareExpr implements IExpression {
 
     private IExpression e1;
@@ -20,7 +22,14 @@ public class CompareExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
+    public String translate() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(e1.translate()).append(" ").append(op).append(" ").append(e2.translate());
+        return sb.toString();
+    }
 
+    @Override
+    public Type type() {
+        return Type.BOOLEAN;
     }
 }

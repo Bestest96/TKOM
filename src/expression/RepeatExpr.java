@@ -1,5 +1,7 @@
 package expression;
 
+import context.ContextHolder;
+
 public class RepeatExpr implements IExpression {
 
     private IExpression expr;
@@ -15,7 +17,21 @@ public class RepeatExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
-
+    public String translate() {
+        StringBuilder sb = ContextHolder.addIndents();
+        sb.append("do").append("\n");
+        if (!(expr instanceof CompoundExpr)) {
+            sb.append("{\n");
+            ContextHolder.changeContext();
+            sb.append(expr.translate());
+            sb.append("\n");
+            ContextHolder.restoreContext();
+            sb.append(ContextHolder.addIndents().toString()).append("} while(true);");
+        }
+        else {
+            sb.append(expr.translate());
+            sb.append(" while(true);");
+        }
+        return sb.toString();
     }
 }

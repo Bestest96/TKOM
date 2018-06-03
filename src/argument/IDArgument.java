@@ -21,4 +21,17 @@ public class IDArgument implements IArgument {
             value.print();
         }
     }
+
+    @Override
+    public String translate() {
+        return id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public IExpression getValue() {
+        return value;
+    }
 }

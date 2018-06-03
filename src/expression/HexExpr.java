@@ -1,5 +1,7 @@
 package expression;
 
+import context.Type;
+
 public class HexExpr implements IExpression {
 
     private String value;
@@ -14,7 +16,12 @@ public class HexExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
+    public String translate() {
+        return String.valueOf(value);
+    }
 
+    @Override
+    public Type type() {
+        return Type.INTEGER;
     }
 }

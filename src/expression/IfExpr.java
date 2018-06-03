@@ -1,5 +1,7 @@
 package expression;
 
+import context.ContextHolder;
+
 public class IfExpr implements IExpression {
 
     private IExpression condition;
@@ -20,7 +22,18 @@ public class IfExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
-
+    public String translate() {
+        StringBuilder sb = ContextHolder.addIndents();
+        sb.append("if (").append(condition.translate()).append(")");
+        sb.append("\n");
+        if (!(expr instanceof CompoundExpr)) {
+            ContextHolder.changeContext();
+            sb.append(expr.translate());
+            sb.append("\n");
+            ContextHolder.restoreContext();
+        }
+        else
+            sb.append(expr.translate());
+        return sb.toString();
     }
 }

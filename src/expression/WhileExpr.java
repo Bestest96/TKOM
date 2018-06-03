@@ -1,5 +1,7 @@
 package expression;
 
+import context.ContextHolder;
+
 public class WhileExpr implements IExpression {
 
     private IExpression condition;
@@ -19,7 +21,18 @@ public class WhileExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
-
+    public String translate() {
+        StringBuilder sb = ContextHolder.addIndents();
+        sb.append("while (").append(condition.translate()).append(")");
+        sb.append("\n");
+        if (!(expr instanceof CompoundExpr)) {
+            ContextHolder.changeContext();
+            sb.append(expr.translate());
+            sb.append("\n");
+            ContextHolder.restoreContext();
+        }
+        else
+            sb.append(expr.translate());
+        return sb.toString();
     }
 }

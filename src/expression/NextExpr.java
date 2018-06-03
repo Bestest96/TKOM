@@ -1,5 +1,7 @@
 package expression;
 
+import context.ContextHolder;
+
 public class NextExpr implements IExpression {
 
     public NextExpr() {
@@ -11,7 +13,7 @@ public class NextExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
-
+    public String translate() {
+        return ContextHolder.addIndents().toString() +  "continue;";
     }
 }

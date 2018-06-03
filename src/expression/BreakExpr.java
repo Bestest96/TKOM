@@ -1,5 +1,7 @@
 package expression;
 
+import context.ContextHolder;
+
 public class BreakExpr implements IExpression {
 
     public BreakExpr() {
@@ -11,7 +13,7 @@ public class BreakExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
-
+    public String translate() {
+        return ContextHolder.addIndents().toString() + "break;";
     }
 }

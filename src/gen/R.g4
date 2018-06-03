@@ -80,8 +80,8 @@ expr returns [IExpression exp]:   expr '[[' sublist ']' ']'  // '[[' follows R's
     |   'function' '(' f=formlist? ')' e=expr { $exp = new FunctionExpr($f.args, $e.exp); } // define function
     |   e1=expr '(' sublist ')' { $exp = new CallFunExpr($e1.exp, $sublist.args); } // call function
     |   '{' exprlist '}' { $exp = new CompoundExpr($exprlist.explist); } // compound statement
-    |   'if' '(' e1=expr ')' e2=expr { $exp = new IfExpr($e1.exp, $e2.exp); }
     |   'if' '(' e1=expr ')' e2=expr 'else' e3=expr { $exp = new IfElseExpr($e1.exp, $e2.exp, $e3.exp); }
+    |   'if' '(' e1=expr ')' e2=expr { $exp = new IfExpr($e1.exp, $e2.exp); }
     |   'for' '(' ID 'in' e1=expr ')' e2=expr { $exp = new ForExpr($ID.text, $e1.exp, $e2.exp); }
     |   'while' '(' e1=expr ')' e2=expr { $exp = new WhileExpr($e1.exp, $e2.exp); }
     |   'repeat' expr { $exp = new RepeatExpr($expr.exp); }

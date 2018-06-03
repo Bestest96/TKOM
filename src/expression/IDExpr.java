@@ -1,5 +1,7 @@
 package expression;
 
+import context.ContextHolder;
+
 public class IDExpr implements IExpression {
 
     private String id;
@@ -14,7 +16,15 @@ public class IDExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
+    public String translate() {
+        return id;
+    }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

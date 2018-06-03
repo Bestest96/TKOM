@@ -1,5 +1,8 @@
 package expression;
 
+import context.ContextHolder;
+import context.Type;
+
 public class MulDivExpr implements IExpression {
 
     private IExpression e1;
@@ -20,7 +23,26 @@ public class MulDivExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
+    public String translate() {
+        StringBuilder sb = ContextHolder.addIndents();
+        sb.append(e1.translate()).append(" ").append(op).append(" ").append(e2.translate());
+        return sb.toString();
+    }
 
+    @Override
+    public Type type() {
+        return e1.type() == e2.type() ? e1.type() : null;
+    }
+
+    public IExpression getE1() {
+        return e1;
+    }
+
+    public String getOp() {
+        return op;
+    }
+
+    public IExpression getE2() {
+        return e2;
     }
 }

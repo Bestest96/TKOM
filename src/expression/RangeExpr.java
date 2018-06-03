@@ -1,5 +1,7 @@
 package expression;
 
+import context.Type;
+
 public class RangeExpr implements IExpression {
 
     private IExpression e1;
@@ -18,7 +20,20 @@ public class RangeExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
+    public String translate() {
+        return e1.translate() + ";" + e2.translate();
+    }
 
+    public IExpression getE1() {
+        return e1;
+    }
+
+    public IExpression getE2() {
+        return e2;
+    }
+
+    @Override
+    public Type type() {
+        return Type.VECTOR;
     }
 }

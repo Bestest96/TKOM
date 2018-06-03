@@ -1,5 +1,7 @@
 package expression;
 
+import context.Type;
+
 public class BoolExpr implements IExpression {
 
     private boolean value;
@@ -14,7 +16,12 @@ public class BoolExpr implements IExpression {
     }
 
     @Override
-    public void translate() {
+    public String translate() {
+        return Boolean.toString(value).toLowerCase();
+    }
 
+    @Override
+    public Type type() {
+        return Type.BOOLEAN;
     }
 }
