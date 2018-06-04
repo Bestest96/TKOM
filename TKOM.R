@@ -6,6 +6,9 @@ print(2 * vector1)
 matrix1 <- matrix(c(1, 5, 9, 2, 3, 4, 6, 7, 8), nrow = 3, ncol = 3, byrow = TRUE)
 matrix(c(1, 5, 9, 2, 3, 4, 6, 7, 8), nrow = 3, ncol = 3, byrow = FALSE) -> matrix2
 
+print(matrix1 * matrix2)
+print(matrix1 %*% matrix2)
+
 print(matrix1 + matrix2)
 
 print (matrix1 / 3)
