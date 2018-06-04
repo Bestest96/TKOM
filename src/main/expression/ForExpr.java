@@ -38,14 +38,10 @@ public class ForExpr implements IExpression {
             sb.append("for (").append(id).append(" = ").append(e1.translate());
             sb.append("; ").append(id).append(" < ").append(e2.translate()).append("; ++").append(id).append(")");
             sb.append("\n");
-            if (!(expr instanceof CompoundExpr)) {
-                ContextHolder.changeContext();
-                sb.append(expr.translate());
-                sb.append("\n");
-                ContextHolder.restoreContext();
-            }
-            else
-                sb.append(expr.translate());
+            ContextHolder.changeContext();
+            sb.append(expr.translate());
+            sb.append("\n");
+            sb.append(ContextHolder.restoreContext());
         }
         else
             throw new TranslationException("Unsupported for collection!");

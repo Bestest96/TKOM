@@ -26,13 +26,21 @@ public class CompoundExpr implements IExpression {
 
     @Override
     public String translate() throws TranslationException {
-        StringBuilder sb = ContextHolder.addIndents();
-        sb.append("{\n");
-        ContextHolder.changeContext();
-        for (IExpression expr: exprlist)
-            sb.append(expr.translate()).append("\n");
-        ContextHolder.restoreContext();
-        sb.append(ContextHolder.addIndents().toString()).append("}");
+        StringBuilder sb = ContextHolder.addIndents().deleteCharAt(0);
+        if (!sb.toString().contains("\t")) {
+            sb.append(ContextHolder.addIndents().toString());
+            sb.append(ContextHolder.addIndents().toString()).append("{\n");
+            for (IExpression expr: exprlist)
+                sb.append(ContextHolder.addIndents().toString()).append(expr.translate()).append("\n");
+            sb.append(ContextHolder.addIndents().toString()).append("}");
+        }
+        else {
+            sb.append("{\n");
+            for (IExpression expr : exprlist)
+                sb.append(expr.translate()).append("\n");
+            sb.append(ContextHolder.addIndents().deleteCharAt(0).toString()).append("}");
+            return sb.toString();
+        }
         return sb.toString();
     }
 }

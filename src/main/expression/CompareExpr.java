@@ -33,6 +33,9 @@ public class CompareExpr implements IExpression {
     public Type type() {
         if (e1.type() == e2.type() && e1.type() != Type.MATRIX && e1.type() != Type.VECTOR)
             return Type.BOOLEAN;
-        else return null;
+        else if ((e1.type() == Type.INTEGER && e2.type() == Type.DOUBLE) || (e1.type() == Type.DOUBLE && e2.type() == Type.INTEGER))
+            return Type.BOOLEAN;
+        else
+            return null;
     }
 }

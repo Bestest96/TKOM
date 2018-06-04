@@ -22,18 +22,12 @@ public class IfElseExpr implements IExpression {
             throw new TranslationException("Wrong if/else expression type!");
         StringBuilder sb = ContextHolder.addIndents();
         sb.append("if (").append(condition.translate()).append(")");
-        if (!(ifExpr instanceof CompoundExpr)) {
-            sb.append("\n{\n");
-            ContextHolder.setNumOfIndents(ContextHolder.getNumOfIndents() + 1);
-            sb.append(ifExpr.translate());
-            sb.append("\n");
-            ContextHolder.setNumOfIndents(ContextHolder.getNumOfIndents() - 1);
-            sb.append(ContextHolder.addIndents().toString()).append("}\n");
-        }
-        else {
-            sb.append("\n");
-            sb.append(ifExpr.translate());
-        }
+        sb.append("\n");
+        ContextHolder.changeContext();
+        sb.append(ifExpr.translate());
+        sb.append("\n");
+        ContextHolder.restoreContext();
+        sb.append(ContextHolder.addIndents().toString()).append("}\n");
         sb.append("else ").append(elseExpr.translate());
         return sb.toString();
     }

@@ -12,7 +12,7 @@ print (matrix1 / 3)
 
 print(vector1[1])
 
-if (length(vector1) == 3) {
+if (det(matrix2)) {
   print("Yay!")
 }
 
@@ -39,27 +39,28 @@ repeat {
     break
 }
 
-text = "TKOM"
+repeat {
+	xxx <- 3
+	break
+}
+	
+for (i in 1:10)
+	print(i)
+	
+while (i < 20)
+	i <- i + 1
 
-switch (text,
-  "TKOM" = {
-	  print("Projekt TKOM")
-	},
-  "TIN" = {
-	  print("Projekt TIN")
-    },
-		{
-		  print("Projekt nieznany")
-	}
-)
+text = "TKOM"
 
 var1 = 10
 var1 = "A teraz jestem stringiem"
 
 matrix3 = matrix(c(1, 2, 3, 4), nrow = 4, ncol = 1, byrow = TRUE)
 matrix4 <- matrix(c(1, 2, 3, 4), nrow = 2, ncol = 2)
-tryCatch(print(matrix3 %*% matrix4),
-         error = function(e) {
-           print(e)
-         })
-		 
+
+len4 <- length(matrix4)
+
+if (length(matrix3) == len4)
+	matrix5 <- matrix(c(1, 2, 3, 4, 5), nrow = 5, ncol = 1, byrow = TRUE)
+	
+print(matrix5)

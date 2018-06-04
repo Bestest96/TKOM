@@ -14,8 +14,6 @@ public class CallFunExpr implements IExpression {
     private IExpression function;
     private List<IArgument> args;
 
-    private final String BREAK = "break;\n";
-
     public CallFunExpr(IExpression function, List<IArgument> args) {
         this.function = function;
         this.args = args;
@@ -56,108 +54,30 @@ public class CallFunExpr implements IExpression {
                 toRet.append("})");
                 return returnDataType(toRet);
             }
-            case "switch": {
-                toRet = ContextHolder.addIndents();
-                int argsSize = args.size();
-                if (argsSize < 2 && !(args.get(0) instanceof ExprArgument))
-                    throw new TranslationException("Wrong args count for switch!");
-                IExpression switchArg = ((ExprArgument) args.get(0)).getValue();
-                if (switchArg instanceof IDExpr) {
-                    String mappedName = ContextHolder.getLocalSymbolsMapper().get(((IDExpr) switchArg).getId());
-                    if (mappedName != null)
-                        switchArg = new IDExpr(mappedName);
-                }
-                if (switchArg.type() != Type.STRING && switchArg.type() != Type.INTEGER)
-                    throw new TranslationException("Wrong switch condition!");
-                toRet.append("switch (");
-                if (switchArg.type() == Type.STRING)
-                    toRet.append("str2int(").append(switchArg.translate()).append("))\n").append(ContextHolder.addIndents().toString()).append("{\n");
-                else
-                    toRet.append(switchArg.translate()).append(")\n").append(ContextHolder.addIndents().toString()).append("{\n");
-                ContextHolder.changeContext();
-                for (int i = 1; i < argsSize - 1; ++i) {
-                    toRet.append(ContextHolder.addIndents().toString()).append("case ");
-                    if (!(args.get(i) instanceof ExprArgument))
-                        throw new TranslationException("Wrong switch argument!");
-                    IExpression caseArg = ((ExprArgument) args.get(i)).getValue();
-                    if (caseArg instanceof AssignmentExpr) {
-                        IExpression caseValue = ((AssignmentExpr) caseArg).getVarName();
-                        IExpression caseExpr = ((AssignmentExpr) caseArg).getVarValue();
-                        if (switchArg.type() == Type.STRING)
-                            toRet.append("str2int(").append(caseValue.translate()).append(")");
-                        else
-                            toRet.append(caseValue.translate());
-                        toRet.append(":\n");
-                        toRet.append(returnCaseExpr(caseExpr));
-                    }
-                    else if (caseArg instanceof CompoundExpr) {
-                        toRet.append(i).append(":\n");
-                        toRet.append(caseArg.translate()).append("\n").append(ContextHolder.addIndents().toString());
-                        toRet.append("\t").append(BREAK);
-                    }
-                }
-                toRet.append(ContextHolder.addIndents().toString()).append("default:\n");
-                if (!(args.get(argsSize - 1) instanceof ExprArgument))
-                    throw new TranslationException("Wrong default argument!");
-                IExpression caseArg = ((ExprArgument) args.get(argsSize - 1)).getValue();
-                if (caseArg instanceof AssignmentExpr) {
-                    IExpression caseValue = ((AssignmentExpr) caseArg).getVarName();
-                    IExpression caseExpr = ((AssignmentExpr) caseArg).getVarValue();
-                    toRet.append(caseValue.translate()).append(":\n");
-                    toRet.append(returnCaseExpr(caseExpr));
-                }
-                else if (caseArg instanceof CompoundExpr) {
-                    toRet.append(caseArg.translate()).append("\n").append(ContextHolder.addIndents().toString());
-                    toRet.append("\t").append(BREAK);
-                }
-                ContextHolder.restoreContext();
-                toRet.append(ContextHolder.addIndents().toString()).append("}");
-                break;
-            }
-            case "tryCatch": {
-                toRet = ContextHolder.addIndents();
-                int argsSize = args.size();
-                if (argsSize != 2 || (!(args.get(0) instanceof ExprArgument) || !(args.get(1) instanceof ExprArgument)))
-                    throw new TranslationException("Wrong try/catch argument count!");
-                IExpression tryExpr = ((ExprArgument) args.get(0)).getValue();
-                IExpression catchExpr = ((ExprArgument) args.get(1)).getValue();
-                toRet.append("try\n");
-                if (!(tryExpr instanceof CompoundExpr)) {
-                    toRet.append(ContextHolder.addIndents().toString()).append("{\n");
-                    ContextHolder.changeContext();
-                    toRet.append(tryExpr.translate());
-                    toRet.append("\n");
-                    ContextHolder.restoreContext();
-                    toRet.append(ContextHolder.addIndents().toString()).append("}\n");
-                }
-                else
-                    toRet.append(tryExpr.translate()).append("\n");
-                toRet.append(ContextHolder.addIndents().toString()).append("catch ");
-                if (!(catchExpr instanceof AssignmentExpr))
-                    throw new TranslationException("Wrong catch expression argument!");
-                AssignmentExpr expr = (AssignmentExpr) catchExpr;
-                if (!((IDExpr)expr.getVarName()).getId().equals("error"))
-                    throw new TranslationException("Wrong catch clause name!");
-                toRet.append(expr.getVarValue().translate());
-                break;
-            }
             case "print": {
+                if (args.size() != 1)
+                    throw new TranslationException("Wrong arguments for print function!");
                 toRet = ContextHolder.addIndents();
                 toRet.append("std::cout << ");
-                for (IArgument arg : args)
-                    toRet.append(arg.translate().replace("\t", "")).append(" << ");
+                toRet.append(args.get(0).translate().replace("\t", "")).append(" << ");
                 toRet.append("std::endl;");
                 break;
             }
             case "length": {
-                if (args.size() != 1)
-                    throw new TranslationException("Wrong arguments count for length!");
-                toRet.append(args.get(0).translate()).append(".n_elem");
+                if (args.size() != 1 && args.get(0).type() != Type.MATRIX && args.get(0).type() != Type.VECTOR)
+                    throw new TranslationException("Wrong arguments for length function!");
+                toRet.append(args.get(0).translate()).append(".get_n_elem()");
+                return returnDataType(toRet);
+            }
+            case "det": {
+                if (args.size() != 1 && args.get(0).type() != Type.MATRIX && args.get(0).type() != Type.VECTOR)
+                    throw new TranslationException("Wrong arguments for det function!");
+                toRet.append("arma::det(").append(args.get(0).translate()).append(")");
                 return returnDataType(toRet);
             }
             case "seq": {
                 toRet.append("arma::regspace<arma::vec>(");
-                String delta = null;
+                String delta;
                 int argsSize = args.size();
                 if (argsSize < 2 || argsSize > 3)
                     throw new TranslationException("Wrong arguments count for seq!");
@@ -268,21 +188,6 @@ public class CallFunExpr implements IExpression {
             }
             default:
                 return null;
-        }
-        return toRet.toString();
-    }
-
-    private String returnCaseExpr(IExpression caseExpr) throws TranslationException {
-        StringBuilder toRet = new StringBuilder();
-        if (!(caseExpr instanceof CompoundExpr)) {
-            ContextHolder.changeContext();
-            toRet.append(caseExpr.translate());
-            toRet.append("\n").append(ContextHolder.addIndents().toString()).append(BREAK);
-            ContextHolder.restoreContext();
-        }
-        else {
-            toRet.append(caseExpr.translate()).append("\n").append(ContextHolder.addIndents().toString());
-            toRet.append("\t").append(BREAK);
         }
         return toRet.toString();
     }

@@ -14,11 +14,9 @@ public class ContextHolder {
 
     private static List<Map<String, String>> symbolsMappersList = new ArrayList<>();
 
-    private static Set<String> actualContextVariables = new HashSet<>();
+    private static Set<String> actualContextVariables = new LinkedHashSet<>();
 
     private static List<Set<String>> contextVariablesList = new ArrayList<>();
-
-    private static Boolean isGlobalContext = true;
 
     private static Integer numOfIndents = 0;
 
@@ -28,11 +26,6 @@ public class ContextHolder {
         fileWriter.println("#include <iostream>");
         fileWriter.println("#include <armadillo>");
         fileWriter.println("#include <vector>");
-        fileWriter.println();
-        fileWriter.println("constexpr unsigned int str2int(const char* str, int h = 0)");
-        fileWriter.println("{");
-        fileWriter.println("\treturn !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];");
-        fileWriter.println("}");
         fileWriter.println();
         fileWriter.println("int main()");
         fileWriter.println("{");
@@ -81,13 +74,6 @@ public class ContextHolder {
         return sb;
     }
 
-    public static Boolean getIsGlobalContext() {
-        return isGlobalContext;
-    }
-
-    public static void setIsGlobalContext(Boolean isGlobalContext) {
-        ContextHolder.isGlobalContext = isGlobalContext;
-    }
 
     public static Integer getNumOfIndents() {
         return numOfIndents;
@@ -131,18 +117,31 @@ public class ContextHolder {
 
     public static void changeContext() {
         ++numOfIndents;
-        isGlobalContext = false;
         contextVariablesList.add(actualContextVariables);
         actualContextVariables = new HashSet<>();
         symbolsMappersList.add(localSymbolsMapper);
         localSymbolsMapper = new HashMap<>();
     }
 
-    public static void restoreContext() {
+    public static String restoreContext() {
         --numOfIndents;
-        if (getNumOfIndents() == 1)
-            isGlobalContext = true;
+        Set<String> previousSet = actualContextVariables;
+        Map<String, String> previousMap = localSymbolsMapper;
         actualContextVariables = contextVariablesList.remove(contextVariablesList.size() - 1);
         localSymbolsMapper = symbolsMappersList.remove(symbolsMappersList.size() - 1);
+        StringBuilder sb = new StringBuilder();
+        for (String var : previousSet) {
+            String id = var;
+            while (previousMap.get(id) != null)
+                id = previousMap.get(id);
+            VariableData varData = symbolsTable.get(id);
+            if (!actualContextVariables.contains(id)) {
+                sb.append(addIndents().toString()).append("auto ").append(id).append(" = ").append(varData.getValue()).append(";\n");
+                actualContextVariables.add(id);
+                if (!var.equals(id))
+                    localSymbolsMapper.put(var, id);
+            }
+        }
+        return sb.toString();
     }
 }

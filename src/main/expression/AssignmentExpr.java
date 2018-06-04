@@ -43,9 +43,16 @@ public class AssignmentExpr implements IExpression {
             throw new TranslationException("Unrecognized data type!");
         while (mapper.containsKey(varID))
             varID = mapper.get(varID);
+        Boolean higher = false;
         if (symbols.containsKey(varID)) {
             VariableData data = symbols.get(varID);
-            if (data.getGloballyUsed() || localVars.contains(varID)) {
+            for (Set higherVars : ContextHolder.getContextVariablesList()) {
+                if (higherVars.contains(varID)) {
+                    higher = true;
+                    break;
+                }
+            }
+            if (higher || localVars.contains(varID)) {
                 if (data.getType() != type) {
                     varID = generateChangedTypeVar(varID, value, type, symbols, mapper, localVars);
                     sb.append(AUTO);
@@ -53,21 +60,18 @@ public class AssignmentExpr implements IExpression {
                 else {
                     data.setValue(value);
                     data.setType(type);
-                    data.setGloballyUsed(data.getGloballyUsed() ? true : ContextHolder.getIsGlobalContext());
                     saveData(varID, data, symbols, localVars);
                 }
             }
             else {
                 data.setValue(value);
                 data.setType(type);
-                data.setGloballyUsed(data.getGloballyUsed() ? true : ContextHolder.getIsGlobalContext());
                 saveData(varID, data, symbols, localVars);
                 sb.append(AUTO);
             }
         }
         else {
             VariableData data = new VariableData();
-            data.setGloballyUsed(ContextHolder.getIsGlobalContext());
             data.setType(type);
             data.setValue(value);
             symbols.put(varID, data);
@@ -86,7 +90,6 @@ public class AssignmentExpr implements IExpression {
             newName = getNewName(varID);
             if (!symbols.containsKey(newName)) {
                 VariableData newData = symbols.getOrDefault(varID, new VariableData());
-                newData.setGloballyUsed(newData.getGloballyUsed() ? true : ContextHolder.getIsGlobalContext());
                 newData.setType(type);
                 newData.setValue(value);
                 symbols.put(newName, newData);

@@ -77,7 +77,7 @@ expr returns [IExpression exp]:   expr '[[' sublist ']' ']'  // '[[' follows R's
                                                                    $exp = new AssignmentExpr($e1.exp, $e2.exp);
                                                                else
                                                                    $exp = new AssignmentExpr($e2.exp, $e1.exp);}
-    |   'function' '(' f=formlist? ')' e=expr { $exp = new FunctionExpr($f.args, $e.exp); } // define function
+    |   'function' '(' f=formlist? ')' e=expr // define function
     |   e1=expr '(' sublist ')' { $exp = new CallFunExpr($e1.exp, $sublist.args); } // call function
     |   '{' exprlist '}' { $exp = new CompoundExpr($exprlist.explist); } // compound statement
     |   'if' '(' e1=expr ')' e2=expr 'else' e3=expr { $exp = new IfElseExpr($e1.exp, $e2.exp, $e3.exp); }

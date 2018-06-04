@@ -24,17 +24,6 @@ public class IDExpr implements IExpression {
             throw new TranslationException("Variable type unrecognized!");
         while (ContextHolder.getLocalSymbolsMapper().get(id) != null)
             id = ContextHolder.getLocalSymbolsMapper().get(id);
-        VariableData data = ContextHolder.getSymbolsTable().get(id);
-        if (data == null)
-            return id;
-        if (!data.getGloballyUsed() && !ContextHolder.getActualContextVariables().contains(id)) {
-            StringBuilder sb = ContextHolder.addIndents();
-            sb.append("auto ").append(id).append(" = ").append(data.getValue()).append(";");
-            data.setGloballyUsed(data.getGloballyUsed() ? true : ContextHolder.getIsGlobalContext());
-            ContextHolder.getSymbolsTable().put(id, data);
-            ContextHolder.getActualContextVariables().add(id);
-            ContextHolder.getFileWriter().println(sb.toString());
-        }
         return id;
     }
 
@@ -44,8 +33,10 @@ public class IDExpr implements IExpression {
             return Type.VECTOR;
         else if (id.startsWith("arma::mat"))
             return Type.MATRIX;
-        else if (id.endsWith(".n_elem") || id.startsWith("length"))
+        else if (id.endsWith(".get_n_elem()") || id.startsWith("length"))
             return Type.INTEGER;
+        else if (id.startsWith("arma::det") || id.startsWith("det"))
+            return Type.DOUBLE;
         VariableData data = ContextHolder.getSymbolsTable().getOrDefault(id, null);
         return data != null ? data.getType() : null;
     }
@@ -53,17 +44,6 @@ public class IDExpr implements IExpression {
     public String getId() {
         while (ContextHolder.getLocalSymbolsMapper().get(id) != null)
             id = ContextHolder.getLocalSymbolsMapper().get(id);
-        VariableData data = ContextHolder.getSymbolsTable().get(id);
-        if (data == null)
-            return id;
-        if (!data.getGloballyUsed() && !ContextHolder.getActualContextVariables().contains(id)) {
-            StringBuilder sb = ContextHolder.addIndents();
-            sb.append("auto ").append(id).append(" = ").append(data.getValue()).append(";");
-            data.setGloballyUsed(data.getGloballyUsed() ? true : ContextHolder.getIsGlobalContext());
-            ContextHolder.getSymbolsTable().put(id, data);
-            ContextHolder.getActualContextVariables().add(id);
-            ContextHolder.getFileWriter().println(sb.toString());
-        }
         return id;
     }
 
