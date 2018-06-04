@@ -1,13 +1,5 @@
-5.5 -> xd
-xd <- 3
 vector1 <- c(1, 2, 3)
-vector2 <- c(3, 2, 1)
-
-vectorSum = vector1 + vector2 #c(4, 4, 4, 4, 4, 4)
-
-print(length(vectorSum))
-
-x <- seq(1, 10)
+vector2 <- c(3, 2, 1, 3, 2, 1)
 
 print(2 * vector1)
 
@@ -16,36 +8,30 @@ matrix(c(1, 5, 9, 2, 3, 4, 6, 7, 8), nrow = 3, ncol = 3, byrow = FALSE) -> matri
 
 print(matrix1 + matrix2)
 
+print (matrix1 / 3)
+
 print(vector1[1])
 
-tryCatch({
-	hahah <- 3
-	hahahb <- 0
-	print (hahah / hahahb)
-},
-         error = function(e) {
-           print(e)
-         })
-
-haha <- length(vectorSum)
-
-if (length(vectorSum) == 3)
-	print("Nice!")
+if (length(vector1) == 3) {
+  print("Yay!")
+}
 
 for (i in 1:10) {
   print(i)
 }
 
-a = 1
-a -> b
+x <- "10"
+x <- 10
+if (x)
+	print("wow")
 
 while (i < 20) {
-  i = i + b
+  i = i + 1
   print(i)
 }
 
 repeat {
-  i = i + a
+  i = i + 1
   if (i == 25)
     next
   print(i)
@@ -56,22 +42,23 @@ repeat {
 text = "TKOM"
 
 switch (text,
-  "TKOM" = print("Projekt TKOM"),
-  "TIN" = print("Projekt TIN"),
-  print("Projekt nieznany")
+  "TKOM" = {
+	  print("Projekt TKOM")
+	},
+  "TIN" = {
+	  print("Projekt TIN")
+    },
+		{
+		  print("Projekt nieznany")
+	}
 )
 
-
-# Halo halo
-# jestem komentarzem w R
-
-
-# Możliwe dodatkowe funkcjonalności
 var1 = 10
 var1 = "A teraz jestem stringiem"
 
 matrix3 = matrix(c(1, 2, 3, 4), nrow = 4, ncol = 1, byrow = TRUE)
-tryCatch(10 / 0,
+matrix4 <- matrix(c(1, 2, 3, 4), nrow = 2, ncol = 2)
+tryCatch(print(matrix3 %*% matrix4),
          error = function(e) {
            print(e)
          })
