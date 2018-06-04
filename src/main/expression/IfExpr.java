@@ -30,10 +30,15 @@ public class IfExpr implements IExpression {
         StringBuilder sb = ContextHolder.addIndents();
         sb.append("if (").append(condition.translate()).append(")");
         sb.append("\n");
-        ContextHolder.changeContext();
-        sb.append(expr.translate());
-        sb.append("\n");
-        sb.append(ContextHolder.restoreContext());
+        if (!(expr instanceof CompoundExpr)) {
+            ContextHolder.changeContext();
+            sb.append(expr.translate());
+            ContextHolder.restoreContext();
+            if (ContextHolder.getVarsToPrint().length() != 0)
+                sb.append("\n").append(ContextHolder.getVarsToPrint());
+        }
+        else
+            sb.append(expr.translate());
         return sb.toString();
     }
 }

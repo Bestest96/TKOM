@@ -66,7 +66,7 @@ public class CallFunExpr implements IExpression {
             case "length": {
                 if (args.size() != 1 && args.get(0).type() != Type.MATRIX && args.get(0).type() != Type.VECTOR)
                     throw new TranslationException("Wrong arguments for length function!");
-                toRet.append(args.get(0).translate()).append(".get_n_elem()");
+                toRet.append(args.get(0).translate()).append(".n_elem");
                 return returnDataType(toRet);
             }
             case "det": {

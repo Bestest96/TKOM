@@ -21,14 +21,20 @@ public class RepeatExpr implements IExpression {
     public String translate() throws TranslationException {
         StringBuilder sb = ContextHolder.addIndents();
         sb.append("do").append("\n");
-        ContextHolder.changeContext();
-        if (!(expr instanceof CompoundExpr))
-            sb.append(ContextHolder.addIndents().toString()).deleteCharAt(sb.length() - 1).append("{\n");
-        sb.append(expr.translate());
-        if (!(expr instanceof CompoundExpr))
-            sb.append("\n").append(ContextHolder.addIndents().toString()).deleteCharAt(sb.length() - 1).append("}");
-        sb.append(" while(true);\n");
-        sb.append(ContextHolder.restoreContext());
+        if (!(expr instanceof CompoundExpr)) {
+            sb.append("{\n");
+            ContextHolder.changeContext();
+            sb.append(expr.translate());
+            ContextHolder.restoreContext();
+            sb.append("\n").append(ContextHolder.addIndents().toString()).append("} while(true);");
+            sb.append("\n").append(ContextHolder.getVarsToPrint());
+        }
+        else {
+            sb.append(expr.translate());
+            sb.delete(sb.length() - 1 - ContextHolder.getVarsToPrint().length(), sb.length());
+            sb.append(" while(true);\n");
+            sb.append(ContextHolder.getVarsToPrint());
+        }
         return sb.toString();
     }
 }

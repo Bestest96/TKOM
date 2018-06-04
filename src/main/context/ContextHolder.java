@@ -14,13 +14,15 @@ public class ContextHolder {
 
     private static List<Map<String, String>> symbolsMappersList = new ArrayList<>();
 
-    private static Set<String> actualContextVariables = new LinkedHashSet<>();
+    private static List<String> actualContextVariables = new ArrayList<>();
 
-    private static List<Set<String>> contextVariablesList = new ArrayList<>();
+    private static List<List<String>> contextVariablesList = new ArrayList<>();
 
     private static Integer numOfIndents = 0;
 
     private static PrintWriter fileWriter = new PrintWriter(System.out, true);
+
+    private static StringBuilder varsToPrint = new StringBuilder();
 
     public static void printBeginning() {
         fileWriter.println("#include <iostream>");
@@ -91,57 +93,52 @@ public class ContextHolder {
         ContextHolder.fileWriter = fileWriter;
     }
 
-    public static Set<String> getActualContextVariables() {
+    public static List<String> getActualContextVariables() {
         return actualContextVariables;
     }
 
-    public static List<Set<String>> getContextVariablesList() {
+    public static List<List<String>> getContextVariablesList() {
         return contextVariablesList;
     }
 
-    public static void setActualContextVariables(Set<String> actualContextVariables) {
-        ContextHolder.actualContextVariables = actualContextVariables;
-    }
-
-    public static void setContextVariablesList(List<Set<String>> contextVariablesList) {
-        ContextHolder.contextVariablesList = contextVariablesList;
-    }
 
     public static List<Map<String, String>> getSymbolsMappersList() {
         return symbolsMappersList;
     }
 
-    public static void setSymbolsMappersList(List<Map<String, String>> symbolsMappersList) {
-        ContextHolder.symbolsMappersList = symbolsMappersList;
-    }
 
     public static void changeContext() {
         ++numOfIndents;
         contextVariablesList.add(actualContextVariables);
-        actualContextVariables = new HashSet<>();
+        actualContextVariables = new ArrayList<>();
         symbolsMappersList.add(localSymbolsMapper);
         localSymbolsMapper = new HashMap<>();
     }
 
-    public static String restoreContext() {
+    public static void restoreContext() {
         --numOfIndents;
-        Set<String> previousSet = actualContextVariables;
+        List<String> previousSet = actualContextVariables;
         Map<String, String> previousMap = localSymbolsMapper;
         actualContextVariables = contextVariablesList.remove(contextVariablesList.size() - 1);
         localSymbolsMapper = symbolsMappersList.remove(symbolsMappersList.size() - 1);
-        StringBuilder sb = new StringBuilder();
+        varsToPrint = new StringBuilder();
         for (String var : previousSet) {
             String id = var;
             while (previousMap.get(id) != null)
                 id = previousMap.get(id);
             VariableData varData = symbolsTable.get(id);
             if (!actualContextVariables.contains(id)) {
-                sb.append(addIndents().toString()).append("auto ").append(id).append(" = ").append(varData.getValue()).append(";\n");
+                varsToPrint.append(addIndents().toString()).append("auto ").append(id).append(" = ").append(varData.getValue()).append(";\n");
                 actualContextVariables.add(id);
                 if (!var.equals(id))
                     localSymbolsMapper.put(var, id);
             }
         }
-        return sb.toString();
+        if (varsToPrint.length() != 0)
+            varsToPrint.deleteCharAt(varsToPrint.length() - 1);
+    }
+
+    public static StringBuilder getVarsToPrint() {
+        return varsToPrint;
     }
 }

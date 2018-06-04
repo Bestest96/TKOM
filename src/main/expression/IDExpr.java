@@ -33,7 +33,7 @@ public class IDExpr implements IExpression {
             return Type.VECTOR;
         else if (id.startsWith("arma::mat"))
             return Type.MATRIX;
-        else if (id.endsWith(".get_n_elem()") || id.startsWith("length"))
+        else if (id.endsWith(".n_elem") || id.startsWith("length"))
             return Type.INTEGER;
         else if (id.startsWith("arma::det") || id.startsWith("det"))
             return Type.DOUBLE;

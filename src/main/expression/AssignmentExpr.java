@@ -6,6 +6,7 @@ import main.context.VariableData;
 import main.exceptions.TranslationException;
 import main.utilities.RandomString;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class AssignmentExpr implements IExpression {
         String value = varValue.translate();
         Map<String, VariableData> symbols = ContextHolder.getSymbolsTable();
         Map<String, String> mapper = ContextHolder.getLocalSymbolsMapper();
-        Set<String> localVars = ContextHolder.getActualContextVariables();
+        List<String> localVars = ContextHolder.getActualContextVariables();
         StringBuilder sb = ContextHolder.addIndents();
         Type type = type();
         if (type == null)
@@ -46,7 +47,7 @@ public class AssignmentExpr implements IExpression {
         Boolean higher = false;
         if (symbols.containsKey(varID)) {
             VariableData data = symbols.get(varID);
-            for (Set higherVars : ContextHolder.getContextVariablesList()) {
+            for (List higherVars : ContextHolder.getContextVariablesList()) {
                 if (higherVars.contains(varID)) {
                     higher = true;
                     break;
@@ -83,7 +84,7 @@ public class AssignmentExpr implements IExpression {
     }
 
     private String generateChangedTypeVar(String varID, String value, Type type, Map<String, VariableData> symbols,
-                                        Map<String, String> mapper, Set<String> localVars) {
+                                        Map<String, String> mapper, List<String> localVars) {
         Boolean goodNewName = false;
         String newName = null;
         while (!goodNewName) {
@@ -123,7 +124,7 @@ public class AssignmentExpr implements IExpression {
         return "_" + rs.nextString() + originalName;
     }
 
-    private void saveData(String varID, VariableData data, Map<String, VariableData> symbols, Set<String> localVars) {
+    private void saveData(String varID, VariableData data, Map<String, VariableData> symbols, List<String> localVars) {
         symbols.put(varID, data);
         localVars.add(varID);
     }

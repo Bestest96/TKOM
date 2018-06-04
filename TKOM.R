@@ -37,6 +37,7 @@ repeat {
   print(i)
   if (i == 30)
     break
+  xxxxxxd <- 33
 }
 
 repeat {
@@ -44,11 +45,15 @@ repeat {
 	break
 }
 	
-for (i in 1:10)
+for (i in 1:10) {
 	print(i)
+	a <- i
+}
 	
-while (i < 20)
+while (i < 20) {
 	i <- i + 1
+	ddd <- i + 2
+	}
 
 text = "TKOM"
 
@@ -63,4 +68,15 @@ len4 <- length(matrix4)
 if (length(matrix3) == len4)
 	matrix5 <- matrix(c(1, 2, 3, 4, 5), nrow = 5, ncol = 1, byrow = TRUE)
 	
-print(matrix5)
+toCheck <- 1
+
+{
+	toCheck <- 2
+	{
+		toCheck <- 3
+		{
+			toCheck <- 4
+			toAssign <- toCheck
+		}
+	}
+}

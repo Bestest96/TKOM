@@ -58,7 +58,7 @@ class Test {
         AssignmentExpr e1 = new AssignmentExpr(new IDExpr("id3"), new FloatExpr(3.5));
         AssignmentExpr e2 = new AssignmentExpr(new IDExpr("id3"), new FloatExpr(3.5));
         CompoundExpr expr = new CompoundExpr(Arrays.asList(e1, e2));
-        assertEquals("{\n\tauto id3 = 3.5;\n\tid3 = 3.5;\n}", expr.translate());
+        assertEquals("{\n\tauto id3 = 3.5;\n\tid3 = 3.5;\n}\nauto id3 = 3.5;", expr.translate());
     }
 
     @org.junit.jupiter.api.Test
@@ -70,7 +70,7 @@ class Test {
     @org.junit.jupiter.api.Test
     void testForExpr() throws TranslationException {
         ForExpr expr = new ForExpr("i", new RangeExpr(new IntExpr(1), new IntExpr(10)), new AssignmentExpr(new IDExpr("id5"), new FloatExpr(3.5)));
-        assertEquals("auto i = 1;\nfor (i = 1; i < 10; ++i)\n\tauto id5 = 3.5;\n", expr.translate());
+        assertEquals("auto i = 1;\nfor (i = 1; i < 10; ++i)\n\tauto id5 = 3.5;\nauto id5 = 3.5;", expr.translate());
     }
 
     @org.junit.jupiter.api.Test
@@ -88,7 +88,7 @@ class Test {
     @org.junit.jupiter.api.Test
     void testIfExpr() throws TranslationException {
         IfExpr expr = new IfExpr(new BoolExpr(true), new AssignmentExpr(new IDExpr("id6"), new IntExpr(10)));
-        assertEquals("if (true)\n\tauto id6 = 10;\n", expr.translate());
+        assertEquals("if (true)\n\tauto id6 = 10;\nauto id6 = 10;", expr.translate());
     }
 
     @org.junit.jupiter.api.Test
@@ -143,7 +143,7 @@ class Test {
     @org.junit.jupiter.api.Test
     void testRepeatExpr() throws TranslationException {
         RepeatExpr expr = new RepeatExpr(new AssignmentExpr(new IDExpr("id8"), new IntExpr(101)));
-        assertEquals("do\n{\n\tauto id8 = 101;\n} while(true);", expr.translate());
+        assertEquals("do\n{\n\tauto id8 = 101;\n} while(true);\nauto id8 = 101;", expr.translate());
     }
 
     @org.junit.jupiter.api.Test
@@ -161,7 +161,7 @@ class Test {
     @org.junit.jupiter.api.Test
     void testWhileExpr() throws TranslationException {
         WhileExpr expr = new WhileExpr(new BoolExpr(true), new AssignmentExpr(new IDExpr("id66"), new IntExpr(10)));
-        assertEquals("while (true)\n\tauto id66 = 10;\n", expr.translate());
+        assertEquals("while (true)\n\tauto id66 = 10;\nauto id66 = 10;", expr.translate());
     }
 
 }
