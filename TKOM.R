@@ -83,3 +83,5 @@ toCheck <- 1
 		}
 	}
 }
+
+boolean <- 1 && 0
